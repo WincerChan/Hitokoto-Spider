@@ -1,0 +1,21 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+requests = "*"
+xxhash = "*"
+tqdm = "*"
+aiohttp = "*"
+pysocks = "*"
+aiosocks = "*"
+
+[dev-packages]
+"pep8" = "*"
+pylint = "*"
+"autopep8" = "*"
+yapf = "*"
+
+[requires]
+python_version = "3.6"
