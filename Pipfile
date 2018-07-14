@@ -10,6 +10,9 @@ tqdm = "*"
 aiohttp = "*"
 pysocks = "*"
 aiosocks = "*"
+pyyaml = "*"
+sqlalchemy = "*"
+pymysql = "*"
 
 [dev-packages]
 "pep8" = "*"
