@@ -3,14 +3,15 @@ import string
 
 import aiohttp
 
-from database import fmt_data
+from database import fmt_data, config
 from progress import main as progress_main
 
-MAX_CONNECTION = 4
+
+MAX_CONNECTION = config.get('max_connection')
 
 
 async def down(url):
-    timeout = aiohttp.ClientTimeout(total=0.5)
+    timeout = aiohttp.ClientTimeout(total=0.1)
     async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=MAX_CONNECTION)) as session:
         while True:
@@ -36,13 +37,11 @@ def main(urls):
 
 
 if __name__ == '__main__':
-    urls = [
-
-    ]
+    urls = config.get('urls')
     try:
         if urls:
             main(urls)
         else:
-            print("请填入网址。")
+            print("请在配置文件中填入网址。")
     except KeyboardInterrupt:
         print("Good Bye!\033[?25l")

@@ -1,18 +1,30 @@
 import os
 import reprlib
 from re import sub
-from sqlite3 import IntegrityError
-from sqlite3 import connect as sql_conn
+from sqlalchemy import create_engine
+from sqlalchemy import exc
 
 from xxhash import xxh64
+import yaml
 
 from progress import flush, write
 
-cursor = sql_conn('../tmp.db')
-COUNTER = cursor.execute("SELECT COUNT(1) FROM MAIN;").fetchone()[0]
 
-TYPE = {
-}
+with open('../config.yml') as fp:
+    config = yaml.load(fp)
+
+engine = create_engine(
+    'mysql+pymysql://{}:{}@127.0.0.1:{}/hitokoto?charset=utf8'.format(
+        config['mysql']['user'],
+        config['mysql']['password'],
+        config['mysql']['port']))
+
+
+COUNTER = engine.execute("SELECT COUNT(id) FROM main;").fetchone()[0]
+
+
+def get_name(url):
+    return url.split('.')[1]
 
 
 def clear():
@@ -24,9 +36,9 @@ def clear():
 def fmt_data(c, url):
     hitokoto = c.get('hitokoto') or c.get('text') or c.get('HITO')
     source = c.get('source') or c.get('from') or c.get('SOURCE')
-    origin = TYPE.get(url, 'cn')
+    origin = get_name(url)
     fmt_hitokoto = sub(r'[,，。.“” …！、\!\?：’；‘？「」—-♬《》⋯『』（）]', '', hitokoto)
-    id = xxh64(fmt_hitokoto).intdigest() - 9223372036854775808
+    id = xxh64(fmt_hitokoto).intdigest()
     if (source and origin):
         insert_data(id, hitokoto, source, origin)
 
@@ -34,12 +46,10 @@ def fmt_data(c, url):
 def insert_data(*data):
     global COUNTER
     try:
-        cursor.execute("INSERT INTO MAIN VALUES {};".format(data))
+        engine.execute("INSERT INTO main VALUES {};".format(data))
         COUNTER += 1
-    except IntegrityError:
+    except exc.IntegrityError:
         print('已重复（%d）：%s' % (COUNTER, reprlib.repr(data[1])), end="")
-        cursor.commit()
     else:
-        cursor.commit()
         print('已插入（%d）：%s' % (COUNTER, reprlib.repr(data[1])), end="")
     clear()
