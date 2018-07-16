@@ -2,6 +2,7 @@ import asyncio
 import string
 
 import aiohttp
+import json
 
 from database import fmt_data, config
 from progress import main as progress_main
@@ -11,7 +12,7 @@ MAX_CONNECTION = config.get('max_connection')
 
 
 async def down(url):
-    timeout = aiohttp.ClientTimeout(total=0.1)
+    timeout = aiohttp.ClientTimeout(connect=0.2)
     async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=MAX_CONNECTION)) as session:
         while True:
@@ -19,8 +20,7 @@ async def down(url):
                 resp = await session.get(url, timeout=timeout,
                                          proxy='http://124.193.37.5:8888')
                 cont = await resp.text()
-                await asyncio.sleep(.5)
-                fmt_data(eval(cont), url)
+                fmt_data(json.loads(cont), url)
             except (asyncio.TimeoutError, aiohttp.ClientError):
                 print('The connect is timeout, try a new connect.')
                 continue

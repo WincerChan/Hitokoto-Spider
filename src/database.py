@@ -34,10 +34,11 @@ def clear():
 
 
 def fmt_data(c, url):
-    hitokoto = c.get('hitokoto') or c.get('text') or c.get('HITO')
+    hitokoto_tmp = c.get('hitokoto') or c.get('text') or c.get('HITO')
     source = c.get('source') or c.get('from') or c.get('SOURCE')
+    hitokoto = sub(r'[\xa0-\xad]', '', hitokoto_tmp)
     origin = get_name(url)
-    fmt_hitokoto = sub(r'[,，。.“” …！、\!\?：’；‘？「」—-♬《》⋯『』（）]', '', hitokoto)
+    fmt_hitokoto = sub(r'[,，。.“” …！、\!\?：’；\\‘？「/」—-♬《》⋯『』（）]', '', hitokoto)
     id = xxh64(fmt_hitokoto).intdigest()
     if (source and origin):
         insert_data(id, hitokoto, source, origin)
@@ -49,7 +50,9 @@ def insert_data(*data):
         engine.execute("INSERT INTO main VALUES {};".format(data))
         COUNTER += 1
     except exc.IntegrityError:
-        print('已重复（%d）：%s' % (COUNTER, reprlib.repr(data[1])), end="")
+        print('已重复（%d）：%s' %
+              (COUNTER, reprlib.repr(str(data[0])+'，'+data[1])), end="")
     else:
-        print('已插入（%d）：%s' % (COUNTER, reprlib.repr(data[1])), end="")
+        print('已插入（%d）：%s' %
+              (COUNTER, reprlib.repr(str(data[0])+'，'+data[1])), end="")
     clear()
