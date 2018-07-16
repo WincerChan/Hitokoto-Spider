@@ -8,7 +8,7 @@ from database import fmt_data, config
 from progress import main as progress_main
 
 
-MAX_CONNECTION = config.get('max_connection')
+MAX_CONNECTION = config.get('pool_connection')
 
 
 async def down(url):
