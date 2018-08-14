@@ -1,8 +1,8 @@
-# Hitokoto-Spider
+# Hitokoto Spider
 
 ## 简介
 
-采取 asyncio + aiohttp 异步爬取。
+采取 asyncio + aiohttp 异步爬取。此项目为[一言后端 API](https://github.com/WincerChan/Hitokoto)的数据库提供数据。
 
 ## 用法
 
