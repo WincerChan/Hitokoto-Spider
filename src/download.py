@@ -17,8 +17,7 @@ async def down(url):
             connector=aiohttp.TCPConnector(limit=MAX_CONNECTION)) as session:
         while True:
             try:
-                resp = await session.get(url, timeout=timeout,
-                                         proxy='http://124.193.37.5:8888')
+                resp = await session.get(url, timeout=timeout)
                 cont = await resp.text()
                 fmt_data(json.loads(cont), url)
             except (asyncio.TimeoutError, aiohttp.ClientError):

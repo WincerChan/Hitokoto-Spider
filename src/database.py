@@ -2,88 +2,58 @@ import os
 import reprlib
 from re import sub
 
-from sqlalchemy import create_engine, exc, Column, String, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, exc as orm_exc
+from pony.orm import (Database, PrimaryKey, Required,
+                      TransactionIntegrityError, commit, db_session)
 from xxhash import xxh64
 from yaml import load as yaml_load
 
-from progress import flush, write
-
-with open('../config.yml') as fp:
+with open('./config.yml') as fp:
     config = yaml_load(fp)
 
-engine = create_engine(
-    'mysql+pymysql://{}:{}@127.0.0.1:{}/hitokoto?charset=utf8'.format(
-        config['mysql']['user'],
-        config['mysql']['password'],
-        config['mysql']['port']))
+db = Database()
+db.bind(provider='mysql', host='127.0.0.1',
+        user=config['mysql']['user'],
+        passwd=config['mysql']['password'], db='hitokoto')
+reprlib.aRepr.maxstring = 55
 
 
-Base = declarative_base()
-
-DBsession = sessionmaker(bind=engine)
-
-
-class HitokotoInfo(Base):
-    __tablename__ = 'main'
-
-    id = Column(Integer, primary_key=True)
-    hitokoto = Column(String(300))
-    source = Column(String(64))
-    origin = Column(String(12))
-
-    def __repr__(self):
-        t = tuple(vars(self).values())
-        fmt = '<Hitokoto(id={}, hitokoto={}, source={}, origin={})>'
-        return fmt.format(*t)
-
-    def __str__(self):
-        reprlib.aRepr.maxstring = 55
-        return reprlib.repr(self.__repr__())
+class Main(db.Entity):
+    id = PrimaryKey(int, size=64, unsigned=True)
+    hitokoto = Required(str)
+    source = Required(str)
+    origin = Required(str)
 
 
-session = DBsession()
-AMOUNT = session.query(HitokotoInfo.id).count()
+with db_session:
+    db.generate_mapping()
+    Helper = type('Helper', (object,), {
+                  'amount': Main.select(lambda p: p.id).count()})
 
 
-def fmt_data(c, url):
+def fmt_data(c: dict, url: str)-> None:
     hitokoto_tmp = c.get('hitokoto') or c.get('text') or c.get('HITO')
     source = c.get('source') or c.get('from') or c.get('SOURCE')
     hitokoto = sub(r'[\xa0-\xad]', '', hitokoto_tmp)
     origin = url.split('.')[1]
-    # 去除一些无用的字符
+    # 去除一些无用字符
     fmt_hitokoto = sub(r'[,，。.“” …！、\!\?：’；\\‘？「/」—-♬《》⋯『』（）]', '', hitokoto)
     id_ = xxh64(fmt_hitokoto).intdigest()
     if (source and origin):
-        record = HitokotoInfo(id=id_, hitokoto=hitokoto,
-                              source=source, origin=origin)
-        insert_data(record)
+        insert_data(id_, hitokoto, source, origin)
 
 
-def insert_data(record):
-    global AMOUNT
-
-    def clear():
-        print()
-        if AMOUNT % 100 == 0:
-            os.system("clear")
-
+@db_session
+def insert_data(*record):
     try:
-        session.add(record)
-        session.commit()
-    except orm_exc.FlushError:
-        fmt = '已重复（{}）:{}'
-        print(fmt.format(AMOUNT, record))
-        session.rollback()
-    except exc.IntegrityError:
-        fmt = '已重复（{}）:{}'
-        print(fmt.format(AMOUNT, record))
-        session.rollback()
+        Main(id=record[0], hitokoto=record[1],
+             source=record[2], origin=record[3])
+        commit()
+    except TransactionIntegrityError:
+        fmt = '已重复（{}）：{}'
+        print(reprlib.repr(fmt.format(Helper.amount, (record[0], record[1]))))
     except Exception as e:
         print(e)
-        exit()
     else:
         fmt = '已插入（{}）：{}'
-        print(fmt.format(AMOUNT, record))
-    clear()
+        Helper.amount += 1
+        print(reprlib.repr(fmt.format(Helper.amount, (record[0], record[1]))))

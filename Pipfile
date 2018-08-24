@@ -4,16 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-requests = "*"
 xxhash = "*"
-tqdm = "*"
 aiohttp = "*"
 pysocks = "*"
-aiosocks = "*"
 pyyaml = "*"
-sqlalchemy = "*"
 pymysql = "*"
 cryptography = "*"
+pony = "*"
 
 [dev-packages]
 "pep8" = "*"
