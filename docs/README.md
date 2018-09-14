@@ -4,6 +4,8 @@
 
 采取 asyncio + aiohttp 异步爬取。此项目为[一言后端 API](https://github.com/WincerChan/Hitokoto)的数据库提供数据。
 
+依赖使用 [Pipenv](https://github.com/pypa/pipenv) 管理，所以需要先安装 Pipenv。
+
 ## 用法
 
 新建 `config.yml` 文件，内容参考 `config_sample.yml` 填写，在 `urls` 一栏填入需爬取的网址，其中 `url` 的数量即为同时发起的连接数，如果是同一个 `url` 的话请填写多次。
