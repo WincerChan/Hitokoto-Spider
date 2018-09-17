@@ -18,6 +18,11 @@ reprlib.aRepr.maxstring = 55
 
 
 class Main(db.Entity):
+    """
+    ORM 中的表结构，这里的变量名即存放进数据库的列名
+    不能为这个 class 重写 str 或 repr 方法
+    因为 pony 存放的时候会调用这个方法
+    """
     id = PrimaryKey(int, size=64, unsigned=True)
     hitokoto = Required(str)
     source = Required(str)
@@ -44,6 +49,7 @@ def fmt_data(c: dict, url: str)-> None:
 
 @db_session
 def insert_data(*record):
+    # 这里用事务包起来，方便错出后回退
     try:
         Main(id=record[0], hitokoto=record[1],
              source=record[2], origin=record[3])
