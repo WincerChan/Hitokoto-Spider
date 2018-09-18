@@ -28,6 +28,7 @@ async def down(url):
 def main(urls):
     loop = asyncio.get_event_loop()
     to_do = [down(url) for url in urls]
+    # 这里需要把进度条加入事件循环
     to_do.append(progress_main())
     wait_coro = asyncio.wait(to_do)
     res, _ = loop.run_until_complete(wait_coro)
