@@ -17,6 +17,10 @@ pony = "*"
 pylint = "*"
 "autopep8" = "*"
 yapf = "*"
+certifi = "*"
+mypy = "*"
+rope = "*"
+psycopg2 = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
