@@ -4,7 +4,8 @@ from re import sub
 from typing import Any, Dict, Optional, Tuple
 
 from pony.orm import (Database, Json, PrimaryKey, Required,
-                      TransactionIntegrityError, commit, core, db_session, dbapiprovider)
+                      TransactionIntegrityError, commit, core, db_session,
+                      dbapiprovider)
 from xxhash import xxh64
 from yaml import SafeLoader
 from yaml import load as yaml_load
