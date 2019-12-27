@@ -8,11 +8,11 @@ from spider.database import fmt_data, config
 from spider.progress import main as progress_main
 
 
-MAX_CONNECTION = config.get('pool_connection')
+MAX_CONNECTION = config.get('alive_connection')
 
 
 async def down(url):
-    timeout = aiohttp.ClientTimeout(connect=0.2)
+    timeout = aiohttp.ClientTimeout(connect=0.3)
     async with aiohttp.ClientSession(
             connector=aiohttp.TCPConnector(limit=MAX_CONNECTION)) as session:
         while True:
@@ -27,6 +27,11 @@ async def down(url):
 
 async def main(urls):
     urls = config.get('urls')
-    to_do = [down(url) for url in urls]
-    # 这里需要把进度条加入事件循环
+    to_do = list()
+    for item in urls:
+        to_do.extend(
+            [down(item.get('url'))
+             for _ in range(item.get('connection', 1))]
+        )
+    # 这里需要把进度条也加入事件循环
     await asyncio.gather(*to_do, progress_main())
