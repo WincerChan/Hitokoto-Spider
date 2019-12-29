@@ -1,14 +1,12 @@
-mysql:
-    port: 3306
-    user: your_username
-    password: your_password
+postgres:
+    port: 5432
+    user: postgres
+    password: 
 
 proxy: False
 
 urls:
-    - url1
-    - url2
-    - url3
-    - url4
+    - url: https://example.com/
+      connection: 500
 
-pool_connection: 5
+alive_connection: 100
