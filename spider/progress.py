@@ -9,7 +9,7 @@ STYLE_START, STYLE_END = '\033[33;36m', '\033[?25l'
 START = int(time.time())
 
 
-async def display_progress(char):
+async def display_progress(char: str):
     status = char + ' '
     fmt_status = '%s%s%s' % (STYLE_START, status, STYLE_END)
     elapsed = int(time.time()) - START
