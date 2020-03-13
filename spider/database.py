@@ -13,7 +13,8 @@ with open('./config.yml') as fp:
 
 db = Database()
 
-db.bind(provider='postgres', host='127.0.0.1',
+db.bind(provider='postgres', host=config['postgres']['host'],
+        port=config['postgres']['port'],
         user=config['postgres']['user'],
         passwd=config['postgres']['password'], database='api')
 
@@ -61,14 +62,15 @@ def fmt_data(c: Dict[str, str], url: str) -> None:
 def insert_data(id_: int, hitokoto: str, source: str, origin: str) -> None:
     # 这里用事务包起来，方便错出后回退
     try:
-        Hitokoto(id=id_, info=hitokoto, source=source,
+        Hitokoto(id=id_, info=dict(hitokoto=hitokoto, source=source),
                  length=len(hitokoto), origin=origin)
         commit()
     except TransactionIntegrityError:
         has_duplicated = f'已重复（{Helper.amount}）：{id_, hitokoto}'
         print(reprlib.repr(has_duplicated))
     except Exception as e:
-        print(e)
+        import traceback
+        traceback.print_exc()
     else:
         has_inserted = f'已插入（{Helper.amount}）：{id_, hitokoto}'
         Helper.amount += 1
