@@ -1,5 +1,6 @@
 import asyncio
 from typing import List, Dict
+from functools import reduce
 
 from spider.database import fmt_data, config
 from spider.progress import main as progress_main
@@ -20,15 +21,15 @@ async def down(url: str):
             print("连接已超时，尝试新建另一连接。")
 
 
+def copy_urls(item: Dict[str, int]):
+    url, connections = item.get('url'), item('connection', 1)
+    return [down(url) for _ in range(connections)]
+
+
 async def main(urls: List[Dict[str, int]]):
     # 这里必须重新使用 loop 初始化 ASS
     global ASS
     ASS = AsyncHTMLSession(loop=asyncio.get_event_loop(), workers=MAX_CONNECTION)
-    to_do = list()
-    for item in urls:
-        to_do.extend(
-            [down(item.get('url'))
-             for _ in range(item.get('connection', 1))]
-        )
+    todo = reduce(lambda c1, c2: c1 + c2, [copy_urls(item) for item in urls])
     # 这里需要把进度条也加入事件循环
-    await asyncio.gather(*to_do, progress_main())
+    await asyncio.gather(*todo, progress_main())
