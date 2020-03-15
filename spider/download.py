@@ -38,6 +38,8 @@ class Download:
 
     @classmethod
     async def __call__(cls, urls: List[Dict[str, int]]):
+        # 这里由于 cls.session 初始化是在 import 的时候就初始化了，并非在 asyncio.run 的时候
+        # 因此需要在这里重新初始化 loop
         cls.session = AsyncHTMLSession(loop=asyncio.get_event_loop(), workers=cls.max_connection)
         todo = reduce(lambda c1, c2: c1 + c2, [cls._copy_urls(item) for item in urls])
         await asyncio.gather(*todo, progress_main())
