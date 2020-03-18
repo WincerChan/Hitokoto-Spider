@@ -15,8 +15,8 @@ class Download:
     def __new__(cls, urls: List[Dict[str, int]], *args, **kwargs):
         if not hasattr(cls, '_instance'):
             cls._instance = super().__new__(cls, *args, **kwargs)
-        # setattr(cls._instance, 'urls', urls)
-        return cls._instance
+            cls._instance.urls = urls
+        return cls._instance.__call__()
 
     async def _do_down(self, url: str):
         while True:
@@ -31,10 +31,10 @@ class Download:
         url, connections = item.get('url'), item.get('connection', 1)
         return [self._do_down(url) for _ in range(connections)]
 
-    async def __call__(self, urls: List[Dict[str, int]]):
+    async def __call__(self):
         self.session = AsyncHTMLSession(
             loop=asyncio.get_event_loop(),
             workers=config.get('alive_connection')
         )
-        todo = reduce(lambda c1, c2: c1 + c2, [self._copy_urls(item) for item in urls])
+        todo = reduce(lambda c1, c2: c1 + c2, [self._copy_urls(item) for item in self.urls])
         await asyncio.gather(*todo, progress_main())
