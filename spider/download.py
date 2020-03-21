@@ -1,12 +1,11 @@
 import asyncio
-from functools import reduce
-from typing import List, Dict
+from typing import List
 
 from requests.exceptions import ReadTimeout, ConnectTimeout
 from requests_html import AsyncHTMLSession, TimeoutError, HTMLResponse
 
 from spider.database import fmt_data, config
-from spider.progress import main as progress_main
+from spider.progress import Progress
 
 
 class Download:
@@ -31,4 +30,4 @@ class Download:
             workers=config.get('alive_connection')
         )
         todo = [self._do_down(url) for url in self.urls]
-        await asyncio.gather(*todo, progress_main())
+        await asyncio.gather(*todo, Progress.show())
