@@ -3,8 +3,10 @@ from collections import abc
 
 
 class FrozenJSON:
-    def __init__(self, args):
-        states = dict()
+    def __new__(cls, args):
+        if not isinstance(args, (abc.MutableSequence, abc.MutableMapping)):
+            return args
+        inst, states = super().__new__(cls), dict()
         for key, value in args.items():
             if isinstance(value, abc.Mapping):
                 states[key] = FrozenJSON(value)
@@ -12,8 +14,9 @@ class FrozenJSON:
                 states[key] = [FrozenJSON(item) for item in value]
             else:
                 states[key] = value
-        super().__setattr__('_FrozenJSON__states', states)
-        super().__setattr__('_FrozenJSON__string', str(states))
+        super(FrozenJSON, inst).__setattr__('_FrozenJSON__states', states)
+        super(FrozenJSON, inst).__setattr__('_FrozenJSON__string', str(args))
+        return inst
 
     def __repr__(self):
         return f'FrozenJSON({self.__string})'
@@ -28,4 +31,3 @@ class FrozenJSON:
     def __setattr__(self, key, value):
         print(f"WARNING: You should not mutate any value of FrozenJSON."
               f"Change `{key}` field in argument dict, then instantiate FrozenJSON")
-
