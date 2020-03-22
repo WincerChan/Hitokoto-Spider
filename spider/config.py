@@ -1,5 +1,7 @@
 from typing import Dict
 from collections import abc
+from pathlib import Path
+import spider
 
 
 class FrozenJSON:
@@ -31,3 +33,14 @@ class FrozenJSON:
     def __setattr__(self, key, value):
         print(f"WARNING: You should not mutate any value of FrozenJSON."
               f"Change `{key}` field in argument dict, then instantiate FrozenJSON")
+
+
+class FrozenConfig(FrozenJSON):
+    _CONFIG = "./config.yml"
+    _Yaml = __import__('yaml')
+
+    def __new__(cls, *args, **kwargs):
+        if not hasattr(cls, '_instance'):
+            config_json = cls._Yaml.load(open(cls._CONFIG), Loader=cls._Yaml.SafeLoader)
+            cls._instance = super().__new__(cls, config_json)
+        return cls._instance

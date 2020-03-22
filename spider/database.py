@@ -5,18 +5,18 @@ from typing import Dict
 from pony.orm import (Database, Json, PrimaryKey, Required,
                       TransactionIntegrityError, commit, db_session)
 from xxhash import xxh64
-from yaml import SafeLoader
-from yaml import load as yaml_load
 
-with open('./config.yml') as fp:
-    config = yaml_load(fp, Loader=SafeLoader)
+from spider.config import FrozenConfig
+
+fc = FrozenConfig()
 
 db = Database()
 
-db.bind(provider='postgres', host=config['postgres']['host'],
-        port=config['postgres']['port'],
-        user=config['postgres']['user'],
-        passwd=config['postgres']['password'], database='api')
+db.bind(provider='postgres', host=fc.postgres.host,
+        port=fc.postgres.port,
+        user=fc.postgres.user,
+        passwd=fc.postgres.password,
+        database='api')
 
 reprlib.aRepr.maxstring = 55
 
