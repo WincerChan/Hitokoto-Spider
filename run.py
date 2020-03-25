@@ -1,8 +1,7 @@
 import asyncio
-from typing import List, Dict
 
-from spider.download import Download
 from spider.config import FrozenConfig
+from spider.download import Download
 
 if __name__ == '__main__':
     urls = FrozenConfig().urls

@@ -1,11 +1,10 @@
 import asyncio
-from typing import List
 
 from requests.exceptions import ReadTimeout, ConnectTimeout
 from requests_html import AsyncHTMLSession, TimeoutError, HTMLResponse
 
-from spider.database import DataFactory
 from spider.config import FrozenConfig
+from spider.database import DataFactory
 from spider.progress import Progress
 
 
@@ -25,8 +24,6 @@ class Download:
                 conn = resp.json()
                 DataFactory.fmt_data(conn, url)
             except (TimeoutError, ReadTimeout, ConnectTimeout):
-                import traceback
-                traceback.print_exc()
                 print("连接已超时，尝试新建另一连接。")
 
     async def __call__(self):

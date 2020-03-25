@@ -20,7 +20,6 @@ class DataFactory:
              user=_config.postgres.user,
              passwd=_config.postgres.password,
              database='api')
-    print("1fdjkfafa")
 
     class Hitokoto(_db.Entity):
         """

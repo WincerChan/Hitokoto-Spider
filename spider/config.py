@@ -1,7 +1,5 @@
-from typing import Dict
 from collections import abc
-from pathlib import Path
-import spider
+from typing import Dict
 
 
 class FrozenJSON:
