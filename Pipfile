@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 xxhash = "*"
-aiohttp = "*"
 pysocks = "*"
 pyyaml = "*"
 pymysql = "*"
