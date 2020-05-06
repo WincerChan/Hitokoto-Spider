@@ -1,10 +1,11 @@
 import asyncio
+from typing import List, Dict
 
 from spider.download import main as download
 from spider.database import config
 
 if __name__ == '__main__':
-    urls = config.get('urls')
+    urls: List[Dict[str, int]] = config.get('urls')
     try:
         if urls:
             asyncio.run(download(urls))

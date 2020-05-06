@@ -11,6 +11,7 @@ pyyaml = "*"
 pymysql = "*"
 cryptography = "*"
 pony = "*"
+requests-html = "*"
 
 [dev-packages]
 "pep8" = "*"
@@ -21,6 +22,7 @@ certifi = "*"
 mypy = "*"
 rope = "*"
 psycopg2 = "*"
+ipython = "*"
 
 [requires]
 python_version = "3.8"
