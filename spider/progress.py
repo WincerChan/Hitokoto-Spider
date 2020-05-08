@@ -1,34 +1,35 @@
-import time
-import itertools
-import sys
 import asyncio
+import itertools
+import time
+from sys import stdout as o
 
 
-write, flush = sys.stdout.write, sys.stdout.flush
-STYLE_START, STYLE_END = '\033[33;36m', '\033[?25l'
-START = int(time.time())
+class Progress:
+    _STYLE_START = '\033[33;36m'
+    _STYLE_END = '\033[?25l'
+    _START_TIME = int(time.time())
 
+    @classmethod
+    async def show(cls):
+        for char in itertools.cycle('⠼⠴⠦⠧⠇⠏⠋⠙⠹⠸'):
+            await cls._display_char(char)
 
-async def display_progress(char: str):
-    status = char + ' '
-    fmt_status = '%s%s%s' % (STYLE_START, status, STYLE_END)
-    elapsed = int(time.time()) - START
-    m, s = divmod(elapsed, 60)
-    h, m = divmod(m, 60)
-    elapsed = "Elapsed: %02d:%02d:%02d" % (h, m, s)
-    print(fmt_status + elapsed, end=""), flush()
-    write('\x08' * len(elapsed + status))
-    await asyncio.sleep(.15)
-
-
-async def main():
-    for char in itertools.cycle('⠼⠴⠦⠧⠇⠏⠋⠙⠹⠸'):
-        await display_progress(char)
+    @classmethod
+    async def _display_char(cls, char: str):
+        fmt_status = f'{cls._STYLE_START}{char} {cls._STYLE_END}'
+        elapsed = int(time.time()) - cls._START_TIME
+        m, s = divmod(elapsed, 60)
+        h, m = divmod(m, 60)
+        elapsed = f'Elapsed: {h:02}:{m:02}:{s:02}'
+        o.write(fmt_status + elapsed), o.flush()
+        o.write('\x08' * (len(elapsed) + 2))
+        await asyncio.sleep(.15)
 
 
 if __name__ == '__main__':
-    loop = asyncio.get_event_loop()
     try:
-        loop.run_until_complete(main())
+        asyncio.run(Progress.show())
     except KeyboardInterrupt:
-        print("Good Bye!\33[?25h")
+        print("Good Bye!")
+    finally:
+        print("\33[?25h", end="")
