@@ -4,3 +4,4 @@ test*
 config.yml
 .mypy_cache/
 .vscode
+.DS_Store
